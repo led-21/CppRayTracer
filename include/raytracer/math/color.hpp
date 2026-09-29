@@ -1,12 +1,12 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef RAYTRACER_MATH_COLOR_HPP
+#define RAYTRACER_MATH_COLOR_HPP
 
-#include "vec3.h"
+#include "raytracer/core/constants.hpp"
+#include "raytracer/math/vec3.hpp"
 
 #include <iostream>
 
-
-void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
+inline void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();
@@ -28,5 +28,4 @@ void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
         << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
 }
 
-
-#endif
+#endif // RAYTRACER_MATH_COLOR_HPP

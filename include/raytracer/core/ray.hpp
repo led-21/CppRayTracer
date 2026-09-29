@@ -1,7 +1,7 @@
-#ifndef RAY_H
-#define RAY_H
+#ifndef RAYTRACER_CORE_RAY_HPP
+#define RAYTRACER_CORE_RAY_HPP
 
-#include "vec3.h"
+#include "raytracer/math/vec3.hpp"
 
 class ray {
     public:
@@ -25,7 +25,7 @@ class ray {
     public:
         point3 orig;
         vec3 dir;
-        double tm;
+        double tm{0};
 };
 
-#endif
+#endif // RAYTRACER_CORE_RAY_HPP

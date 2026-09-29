@@ -1,19 +1,18 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
+#ifndef RAYTRACER_MATERIALS_MATERIAL_HPP
+#define RAYTRACER_MATERIALS_MATERIAL_HPP
 
-#include "rtweekend.h"
-
-
-struct hit_record;
-
+#include "raytracer/core/constants.hpp"
+#include "raytracer/core/ray.hpp"
+#include "raytracer/geometry/hittable.hpp"
+#include "raytracer/math/color.hpp"
 
 class material {
     public:
+        virtual ~material() = default;
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
         ) const = 0;
 };
-
 
 class lambertian : public material {
     public:
@@ -22,6 +21,7 @@ class lambertian : public material {
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
         ) const override {
+            (void)r_in;
             auto scatter_direction = rec.normal + random_unit_vector();
 
             // Catch degenerate scatter direction
@@ -36,7 +36,6 @@ class lambertian : public material {
     public:
         color albedo;
 };
-
 
 class metal : public material {
     public:
@@ -55,7 +54,6 @@ class metal : public material {
         color albedo;
         double fuzz;
 };
-
 
 class dielectric : public material {
     public:
@@ -95,5 +93,4 @@ class dielectric : public material {
         }
 };
 
-
-#endif
+#endif // RAYTRACER_MATERIALS_MATERIAL_HPP

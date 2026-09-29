@@ -1,10 +1,8 @@
-#ifndef SPHERE_H
-#define SPHERE_H
+#ifndef RAYTRACER_GEOMETRY_SPHERE_HPP
+#define RAYTRACER_GEOMETRY_SPHERE_HPP
 
-#include "rtweekend.h"
-
-#include "hittable.h"
-
+#include "raytracer/core/constants.hpp"
+#include "raytracer/geometry/hittable.hpp"
 
 class sphere : public hittable {
     public:
@@ -18,12 +16,11 @@ class sphere : public hittable {
 
     public:
         point3 center;
-        double radius;
+        double radius{0};
         shared_ptr<material> mat_ptr;
 };
 
-
-bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+inline bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
     vec3 oc = r.origin() - center;
     auto a = r.direction().length_squared();
     auto half_b = dot(oc, r.direction());
@@ -50,5 +47,4 @@ bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) cons
     return true;
 }
 
-
-#endif
+#endif // RAYTRACER_GEOMETRY_SPHERE_HPP

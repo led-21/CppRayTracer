@@ -1,18 +1,15 @@
-#include "rtweekend.h"
+#include "raytracer/core/constants.hpp"
+#include "raytracer/camera/camera.hpp"
+#include "raytracer/geometry/hittable_list.hpp"
+#include "raytracer/geometry/sphere.hpp"
+#include "raytracer/materials/material.hpp"
+#include "raytracer/math/color.hpp"
 
-#include "camera.h"
-#include "color.h"
-#include "hittable_list.h"
-#include "material.h"
-#include "sphere.h"
+#include "stb_image_write.h"
 
 #include <iostream>
-#include <stdio.h>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "external/stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "external/stb_image_write.h"
+#include <cstdio>
+#include <cstdlib>
 
 color ray_color(const ray& r, const hittable& world, int depth) {
     hit_record rec;
@@ -89,16 +86,15 @@ hittable_list random_scene()
     return world;
 }
 
-void save_frame(int frame, unsigned char *data, int w, int h) // Saves image
+void save_frame(int frame, unsigned char *data, int w, int h)
 {
-    char file[PATH_MAX];
-    sprintf(file, "output%06d.png", frame);
+    char file[64];
+    std::snprintf(file, sizeof(file), "output%06d.png", frame);
     stbi_write_png(file, w, h, 3, data, w * 3);
 }
 
 int main()
 {
-
     // Image
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 1200;
@@ -107,11 +103,9 @@ int main()
     const int max_depth = 50;
 
     // World
-
     auto world = random_scene();
 
     // Camera
-
     point3 lookfrom(13, 2, 3);
     point3 lookat(0, 0, 0);
     vec3 vup(0, 1, 0);
@@ -121,12 +115,15 @@ int main()
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
 
     // Render
-
     std::cout << "P3\n"
               << image_width << ' ' << image_height << "\n255\n";
 
     // Write Image
-    unsigned char* image_data = (unsigned char*) malloc(image_width * image_height * 3);
+    unsigned char* image_data = static_cast<unsigned char*>(std::malloc(image_width * image_height * 3));
+    if (!image_data) {
+        std::cerr << "Failed to allocate memory for image buffer.\n";
+        return 1;
+    }
 
     for (int j = image_height - 1; j >= 0; --j)
     {
@@ -159,17 +156,15 @@ int main()
             g = sqrt(scale * g);
             b = sqrt(scale * b);
 
-            image_data[3 * (j * image_width + i)] =  static_cast<int>(256 * clamp(r, 0.0, 0.999));
-            image_data[3 * (j * image_width + i)+1] =  static_cast<int>(256 * clamp(g, 0.0, 0.999));
-            image_data[3 * (j * image_width + i)+2] = static_cast<int>(256 * clamp(b, 0.0, 0.999));
-
+            image_data[3 * (j * image_width + i)] = static_cast<unsigned char>(256 * clamp(r, 0.0, 0.999));
+            image_data[3 * (j * image_width + i)+1] = static_cast<unsigned char>(256 * clamp(g, 0.0, 0.999));
+            image_data[3 * (j * image_width + i)+2] = static_cast<unsigned char>(256 * clamp(b, 0.0, 0.999));
         }
     }
 
-    char file[20];
-    sprintf(file, "output.png");
-
     save_frame(1, image_data, image_width, image_height);
+    std::free(image_data);
 
     std::cerr << "\nDone.\n";
+    return 0;
 }

@@ -1,0 +1,42 @@
+# Build outputs
+build/
+bin/
+lib/
+out/
+cmake-build-*/
+
+# Compiled binaries and libraries
+*.exe
+*.out
+*.app
+*.o
+*.obj
+*.lib
+*.a
+*.so
+*.dylib
+*.dll
+*.pdb
+*.ilk
+
+# IDE and Editor configurations
+.vscode/
+.vs/
+*.sln
+*.vcxproj*
+.idea/
+*.swp
+*.swo
+*~
+compile_commands.json
+
+# Temporary render outputs (preserving curated renders in renders/)
+output*.png
+output*.ppm
+render*.png
+render*.ppm
+*.tmp
+
+# Operating system files
+Thumbs.db
+.DS_Store

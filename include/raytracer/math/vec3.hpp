@@ -1,5 +1,7 @@
-#ifndef VEC3_H
-#define VEC3_H
+#ifndef RAYTRACER_MATH_VEC3_HPP
+#define RAYTRACER_MATH_VEC3_HPP
+
+#include "raytracer/core/constants.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -155,5 +157,4 @@ inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
     return r_out_perp + r_out_parallel;
 }
 
-
-#endif
+#endif // RAYTRACER_MATH_VEC3_HPP

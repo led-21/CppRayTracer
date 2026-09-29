@@ -1,7 +1,10 @@
-#ifndef PERLIN_H
-#define PERLIN_H
+#ifndef RAYTRACER_TEXTURES_PERLIN_HPP
+#define RAYTRACER_TEXTURES_PERLIN_HPP
 
-#include "rtweekend.h"
+#include "raytracer/core/constants.hpp"
+#include "raytracer/math/vec3.hpp"
+
+#include <cmath>
 
 class perlin {
     public:
@@ -104,5 +107,4 @@ class perlin {
         }
 };
 
-
-#endif
+#endif // RAYTRACER_TEXTURES_PERLIN_HPP

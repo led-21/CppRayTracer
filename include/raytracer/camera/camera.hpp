@@ -1,8 +1,9 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef RAYTRACER_CAMERA_CAMERA_HPP
+#define RAYTRACER_CAMERA_CAMERA_HPP
 
-#include "rtweekend.h"
-
+#include "raytracer/core/constants.hpp"
+#include "raytracer/core/ray.hpp"
+#include "raytracer/math/vec3.hpp"
 
 class camera {
     public:
@@ -55,7 +56,7 @@ class camera {
         vec3 vertical;
         vec3 u, v, w;
         double lens_radius;
-        double time0, time1;  // shutter open/close times
+        double time0{0}, time1{0};  // shutter open/close times
 };
 
-#endif
+#endif // RAYTRACER_CAMERA_CAMERA_HPP

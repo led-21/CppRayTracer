@@ -1,15 +1,13 @@
-#ifndef HITTABLE_LIST_H
-#define HITTABLE_LIST_H
+#ifndef RAYTRACER_GEOMETRY_HITTABLE_LIST_HPP
+#define RAYTRACER_GEOMETRY_HITTABLE_LIST_HPP
 
-#include "rtweekend.h"
-
-#include "hittable.h"
+#include "raytracer/core/constants.hpp"
+#include "raytracer/geometry/hittable.hpp"
 
 #include <memory>
 #include <vector>
 
-
-class hittable_list : public hittable  {
+class hittable_list : public hittable {
     public:
         hittable_list() {}
         hittable_list(shared_ptr<hittable> object) { add(object); }
@@ -24,8 +22,7 @@ class hittable_list : public hittable  {
         std::vector<shared_ptr<hittable>> objects;
 };
 
-
-bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+inline bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
     hit_record temp_rec;
     auto hit_anything = false;
     auto closest_so_far = t_max;
@@ -41,5 +38,4 @@ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& re
     return hit_anything;
 }
 
-
-#endif
+#endif // RAYTRACER_GEOMETRY_HITTABLE_LIST_HPP

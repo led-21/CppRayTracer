@@ -1,19 +1,19 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef RAYTRACER_TEXTURES_TEXTURE_HPP
+#define RAYTRACER_TEXTURES_TEXTURE_HPP
 
-#include "rtweekend.h"
+#include "raytracer/core/constants.hpp"
+#include "raytracer/math/color.hpp"
+#include "raytracer/textures/perlin.hpp"
 
-#include "perlin.h"
-#include "rtw_stb_image.h"
+#include "stb_image.h"
 
 #include <iostream>
 
-
-class texture  {
+class texture {
     public:
+        virtual ~texture() = default;
         virtual color value(double u, double v, const vec3& p) const = 0;
 };
-
 
 class solid_color : public texture {
     public:
@@ -24,13 +24,13 @@ class solid_color : public texture {
           : solid_color(color(red,green,blue)) {}
 
         virtual color value(double u, double v, const vec3& p) const override {
+            (void)u; (void)v; (void)p;
             return color_value;
         }
 
     private:
         color color_value;
 };
-
 
 class checker_texture : public texture {
     public:
@@ -55,15 +55,13 @@ class checker_texture : public texture {
         shared_ptr<texture> even;
 };
 
-
 class noise_texture : public texture {
     public:
-        noise_texture() {}
+        noise_texture() : scale(1.0) {}
         noise_texture(double sc) : scale(sc) {}
 
         virtual color value(double u, double v, const vec3& p) const override {
-            // return color(1,1,1)*0.5*(1 + noise.turb(scale * p));
-            // return color(1,1,1)*noise.turb(scale * p);
+            (void)u; (void)v;
             return color(1,1,1)*0.5*(1 + sin(scale*p.z() + 10*noise.turb(p)));
         }
 
@@ -71,7 +69,6 @@ class noise_texture : public texture {
         perlin noise;
         double scale;
 };
-
 
 class image_texture : public texture {
     public:
@@ -94,11 +91,12 @@ class image_texture : public texture {
             bytes_per_scanline = bytes_per_pixel * width;
         }
 
-        ~image_texture() {
-            STBI_FREE(data);
+        virtual ~image_texture() override {
+            stbi_image_free(data);
         }
 
         virtual color value(double u, double v, const vec3& p) const override {
+            (void)p;
             // If we have no texture data, then return solid cyan as a debugging aid.
             if (data == nullptr)
                 return color(0,1,1);
@@ -126,5 +124,4 @@ class image_texture : public texture {
         int bytes_per_scanline;
 };
 
-
-#endif
+#endif // RAYTRACER_TEXTURES_TEXTURE_HPP
