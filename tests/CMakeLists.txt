@@ -33,3 +33,12 @@ target_link_libraries(test_image_buffer PRIVATE
     raytracer_core
 )
 add_test(NAME TestImageBuffer COMMAND test_image_buffer)
+
+# CLI & SceneFactory tests
+add_executable(test_cli_and_scenes
+    test_cli_and_scenes.cpp
+)
+target_link_libraries(test_cli_and_scenes PRIVATE
+    raytracer_core
+)
+add_test(NAME TestCliAndScenes COMMAND test_cli_and_scenes)
