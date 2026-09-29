@@ -3,29 +3,29 @@
 
 #include "raytracer/math/vec3.hpp"
 
+namespace raytracer {
+
 class ray {
-    public:
-        ray() {}
-        ray(const point3& origin, const vec3& direction)
-            : orig(origin), dir(direction), tm(0)
-        {}
+public:
+    constexpr ray() noexcept = default;
 
-        ray(const point3& origin, const vec3& direction, double time)
-            : orig(origin), dir(direction), tm(time)
-        {}
+    constexpr ray(const point3& origin, const vec3& direction, double time = 0.0) noexcept
+        : orig(origin), dir(direction), tm(time) {}
 
-        point3 origin() const  { return orig; }
-        vec3 direction() const { return dir; }
-        double time() const    { return tm; }
+    constexpr point3 origin() const noexcept { return orig; }
+    constexpr vec3 direction() const noexcept { return dir; }
+    constexpr double time() const noexcept { return tm; }
 
-        point3 at(double t) const {
-            return orig + t*dir;
-        }
+    constexpr point3 at(double t) const noexcept {
+        return orig + t * dir;
+    }
 
-    public:
-        point3 orig;
-        vec3 dir;
-        double tm{0};
+public:
+    point3 orig;
+    vec3 dir;
+    double tm{0.0};
 };
+
+} // namespace raytracer
 
 #endif // RAYTRACER_CORE_RAY_HPP

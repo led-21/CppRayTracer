@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <iostream>
 
+using namespace raytracer;
+
 #define CHECK(cond, msg) \
     do { \
         if (!(cond)) { \
