@@ -10,10 +10,13 @@
 #include "raytracer/renderer/image_buffer.hpp"
 #include "raytracer/scene/scene.hpp"
 
+#include <atomic>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <vector>
 
 namespace raytracer {
 
@@ -55,38 +58,89 @@ public:
         const int samples = options.samples_per_pixel;
         const int max_depth = options.max_depth;
 
-        std::cout << "Rendering scene: '" << options.scene_name << "'\n"
-                  << "Resolution:     " << width << "x" << height << "\n"
-                  << "Samples/pixel:  " << samples << "\n"
-                  << "Max depth:      " << max_depth << "\n"
-                  << "Output:         " << options.output_path << "\n"
-                  << std::endl;
+        int num_threads = options.num_threads > 0
+            ? options.num_threads
+            : static_cast<int>(std::thread::hardware_concurrency());
+        if (num_threads <= 0) {
+            num_threads = 1;
+        }
+
+        std::cout << "========================================\n"
+                  << " CppRayTracer - Multithreaded Renderer\n"
+                  << "========================================\n"
+                  << " Scene:          " << options.scene_name << "\n"
+                  << " Resolution:     " << width << "x" << height << "\n"
+                  << " Samples/pixel:  " << samples << "\n"
+                  << " Max depth:      " << max_depth << "\n"
+                  << " Threads:        " << num_threads << "\n"
+                  << " Output:         " << options.output_path << "\n"
+                  << "========================================\n" << std::endl;
 
         ImageBuffer image(width, height);
         const auto start_time = std::chrono::high_resolution_clock::now();
 
-        for (int j = 0; j < height; ++j) {
-            std::cerr << "\rScanlines remaining: " << std::setw(5) << (height - 1 - j) << ' ' << std::flush;
+        std::atomic<int> next_scanline{0};
+        std::atomic<int> completed_scanlines{0};
 
-            for (int i = 0; i < width; ++i) {
-                color pixel_color(0.0, 0.0, 0.0);
-
-                for (int s = 0; s < samples; ++s) {
-                    auto u = (i + random_double()) / (width - 1);
-                    auto v = ((height - 1 - j) + random_double()) / (height - 1);
-                    ray r = scene.cam.get_ray(u, v);
-                    pixel_color += ray_color(r, scene.world, max_depth, scene.use_sky_gradient);
+        auto render_worker = [&]() {
+            while (true) {
+                int j = next_scanline.fetch_add(1);
+                if (j >= height) {
+                    break;
                 }
 
-                image.set_pixel(i, j, pixel_color, samples);
+                for (int i = 0; i < width; ++i) {
+                    color pixel_color(0.0, 0.0, 0.0);
+
+                    for (int s = 0; s < samples; ++s) {
+                        auto u = (i + random_double()) / (width - 1);
+                        auto v = ((height - 1 - j) + random_double()) / (height - 1);
+                        ray r = scene.cam.get_ray(u, v);
+                        pixel_color += ray_color(r, scene.world, max_depth, scene.use_sky_gradient);
+                    }
+
+                    image.set_pixel(i, j, pixel_color, samples);
+                }
+
+                completed_scanlines.fetch_add(1);
+            }
+        };
+
+        // Spawn worker threads
+        std::vector<std::thread> workers;
+        workers.reserve(static_cast<size_t>(num_threads));
+        for (int t = 0; t < num_threads; ++t) {
+            workers.emplace_back(render_worker);
+        }
+
+        // Live progress monitoring
+        while (completed_scanlines.load() < height) {
+            int done = completed_scanlines.load();
+            int percent = (100 * done) / height;
+            std::cerr << "\rRendering progress: " << std::setw(3) << percent << "% ("
+                      << done << "/" << height << " scanlines) " << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+        }
+
+        for (auto& worker : workers) {
+            if (worker.joinable()) {
+                worker.join();
             }
         }
+
+        std::cerr << "\rRendering progress: 100% (" << height << "/" << height << " scanlines) \n";
 
         const auto end_time = std::chrono::high_resolution_clock::now();
         const std::chrono::duration<double> elapsed = end_time - start_time;
 
-        std::cerr << "\nRendering completed in " << std::fixed << std::setprecision(2)
-                  << elapsed.count() << " seconds.\n";
+        const double total_primary_rays = static_cast<double>(width) * height * samples;
+        const double mrays_per_second = (total_primary_rays / elapsed.count()) / 1'000'000.0;
+
+        std::cout << "\nPerformance Metrics:\n"
+                  << "  Elapsed Time:       " << std::fixed << std::setprecision(2) << elapsed.count() << " seconds\n"
+                  << "  Primary Rays Cast:  " << std::fixed << std::setprecision(0) << total_primary_rays << "\n"
+                  << "  Ray Throughput:     " << std::fixed << std::setprecision(2) << mrays_per_second << " MRays/s\n"
+                  << std::endl;
 
         // Save output based on file extension
         bool saved = false;
@@ -97,9 +151,9 @@ public:
         }
 
         if (saved) {
-            std::cout << "Successfully saved image to " << options.output_path << "\n";
+            std::cout << "[SUCCESS] Image saved to " << options.output_path << "\n";
         } else {
-            std::cerr << "Failed to save image to " << options.output_path << "\n";
+            std::cerr << "[ERROR] Failed to save image to " << options.output_path << "\n";
         }
 
         return saved;

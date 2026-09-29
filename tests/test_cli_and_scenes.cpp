@@ -27,11 +27,13 @@ void test_cli_parsing() {
     char arg8[] = "25";
     char arg9[] = "--depth";
     char arg10[] = "15";
-    char arg11[] = "--output";
-    char arg12[] = "custom_render.ppm";
+    char arg11[] = "--threads";
+    char arg12[] = "4";
+    char arg13[] = "--output";
+    char arg14[] = "custom_render.ppm";
 
-    char* argv[] = {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12};
-    int argc = 13;
+    char* argv[] = {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14};
+    int argc = 15;
 
     auto options = CommandLineParser::parse(argc, argv);
 
@@ -40,6 +42,7 @@ void test_cli_parsing() {
     CHECK(options.image_height == 360, "height should be 360");
     CHECK(options.samples_per_pixel == 25, "samples should be 25");
     CHECK(options.max_depth == 15, "depth should be 15");
+    CHECK(options.num_threads == 4, "threads should be 4");
     CHECK(options.output_path == "custom_render.ppm", "output should be custom_render.ppm");
     CHECK(!options.show_help, "show_help should be false");
 

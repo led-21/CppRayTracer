@@ -17,6 +17,7 @@ struct RenderOptions {
     int image_height{0}; // 0 = auto calculate based on 16:9 aspect ratio
     int samples_per_pixel{50};
     int max_depth{50};
+    int num_threads{0};  // 0 = auto-detect hardware concurrency
     std::string output_path{"render.png"};
     bool show_help{false};
 };
@@ -33,6 +34,7 @@ public:
                   << "  --height <int>        Image height in pixels (default: 0 = auto 16:9)\n"
                   << "  --samples <int>       Samples per pixel for antialiasing (default: 50)\n"
                   << "  --depth <int>         Maximum ray bounce depth (default: 50)\n"
+                  << "  --threads <int>       Number of rendering threads (default: 0 = auto)\n"
                   << "  --output <file>       Output file path (.png or .ppm) (default: render.png)\n"
                   << "  -h, --help            Show this help message and list of scenes\n\n"
                   << "Available Scenes:\n";
@@ -62,6 +64,8 @@ public:
                 options.samples_per_pixel = std::max(1, std::atoi(argv[++i]));
             } else if (arg == "--depth" && i + 1 < argc) {
                 options.max_depth = std::max(1, std::atoi(argv[++i]));
+            } else if (arg == "--threads" && i + 1 < argc) {
+                options.num_threads = std::max(0, std::atoi(argv[++i]));
             } else if (arg == "--output" && i + 1 < argc) {
                 options.output_path = argv[++i];
             } else {
